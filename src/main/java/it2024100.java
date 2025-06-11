@@ -74,7 +74,7 @@ public class it2024100 {
         // Testaroyme to search kai to exit
         List<ParkingSpot> spots1 = lot.allocateSpots(v1.getSize(), v1.getFuelType() == FuelType.ELECTRIC);
         if (!spots1.isEmpty()) {
-            ParkingSession ps1 = new ParkingSession(v1, d1, spots1, java.time.LocalDateTime.now(), 5);
+            ParkingSession ps1 = new ParkingSession(v1, d1, spots1, java.time.LocalDateTime.now());
             lot.markOccupied(spots1, ps1);
             repo.save("session_vehicle_" + v1.getPlate(), ps1, ParkingSession.class);
             repo.save("session_driver_"  + d1.getPhone(),   ps1, ParkingSession.class);
@@ -83,7 +83,7 @@ public class it2024100 {
         // Px parkare gia 3 wres
         List<ParkingSpot> spots2 = lot.allocateSpots(v2.getSize(), v2.getFuelType() == FuelType.ELECTRIC);
         if (!spots2.isEmpty()) {
-            ParkingSession ps2 = new ParkingSession(v2, d2, spots2, java.time.LocalDateTime.now(), 3);
+            ParkingSession ps2 = new ParkingSession(v2, d2, spots2, java.time.LocalDateTime.now());
             lot.markOccupied(spots2, ps2);
             repo.save("session_vehicle_" + v2.getPlate(), ps2, ParkingSession.class);
             repo.save("session_driver_"  + d2.getPhone(),   ps2, ParkingSession.class);

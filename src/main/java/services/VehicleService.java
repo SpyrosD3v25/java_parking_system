@@ -51,7 +51,7 @@ public class VehicleService {
             System.out.println("  1) Car");
             System.out.println("  2) Motorcycle");
             System.out.println("  3) Truck");
-            System.out.print("Your choice [1–3]: ");
+            System.out.print("Your choice [1-3]: ");
             String line = scanner.nextLine().trim();
             try {
                 vtype = Integer.parseInt(line);
@@ -65,17 +65,17 @@ public class VehicleService {
             System.out.println("Select fuel type:");
             System.out.println("  1) DIESEL");
             System.out.println("  2) ELECTRIC");
-            System.out.print("Your choice [1-3]: ");
+            System.out.print("Your choice [1-2]: ");
             String line = scanner.nextLine().trim();
             try {
                 ftype = Integer.parseInt(line);
                 if (ftype >= 1 && ftype <= 3) break;
             } catch (NumberFormatException ignored) {}
-            System.out.println("Invalid choice. Enter 1, 2, or 3.");
+            System.out.println("Invalid choice. Enter 1, or 2");
         }
         FuelType fuel = switch (ftype) {
-            case 1 -> FuelType.ELECTRIC;
-            default -> FuelType.DIESEL;
+            case 1 -> FuelType.DIESEL;
+            default -> FuelType.ELECTRIC;
         };
 
         Vehicle vehicle;

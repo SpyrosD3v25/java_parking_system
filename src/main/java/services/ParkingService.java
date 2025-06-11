@@ -47,14 +47,8 @@ public class ParkingService {
         if (!validatePlate(plate)) { return; }
 
         Vehicle vehicle = vehicleService.findOrCreateVehicle(plate);
-
-        int duration = promptForDuration();
-        if (duration < 0 || duration > 24) {
-            System.out.println("Cancelled or invalid duration.");
-            return;
-        }
         
-        boolean success = allocateAndStartSession(vehicle, duration);
+        boolean success = allocateAndStartSession(vehicle);
         if (success) {
             System.out.println("Parking completed successfully.");
         } else {
@@ -74,9 +68,8 @@ public class ParkingService {
             return;
         }
 
-        // where exitDateTime==null like query (php-style)
         Optional<ParkingSession> opt = sessions.stream()
-                .filter(s -> s.getExitDateTime() == null)
+                .filter(s -> !s.isClosed())
                 .findFirst();
 
         if (opt.isEmpty()) {
@@ -85,11 +78,17 @@ public class ParkingService {
         }
 
         ParkingSession sess = opt.get();
-        sess.closeSession();  
-        System.out.println("Computed fee: " + sess.getFeeEuros() + "€");
+        int hours = promptForDuration();
+        if (hours == -1) return;
 
-        parkingLot.freeSpots(sess.getSpots());
-        System.out.println("Spots freed. Session closed.");
+        try {
+            sess.closeSession(hours);
+            System.out.println("Computed fee: " + sess.getFeeEuros() + "€");
+            parkingLot.freeSpots(sess.getSpots());
+            System.out.println("Spots freed. Session closed.");
+        } catch (Exception e) {
+            System.out.println("Failed to close session: " + e.getMessage());
+        }
     }
 
     public void searchByDriver() {
@@ -108,9 +107,13 @@ public class ParkingService {
         for (ParkingSession s : sessions) {
             String plate = s.getVehicle().getPlate();
             String start = s.formatStartDateTime();
-            int dur      = s.getDurationHours();
-            String fee   = (s.getFeeEuros() == null ? "[not exited]" : s.getFeeEuros() + "€");
-            System.out.printf("  Plate=%s, Start=%s, Duration=%dh, Fee=%s%n", plate, start, dur, fee);
+            if (s.isClosed()) {
+                int dur      = s.getDurationHours();
+                String fee   = (s.getFeeEuros() == null ? "[not exited]" : s.getFeeEuros() + "€");
+                System.out.printf("  Plate=%s, Start=%s, Duration=%dh, Fee=%s%n", plate, start, dur, fee);
+            } else {
+                System.out.printf("  Plate=%s, Start=%s, [still parked]%n", plate, start);
+            }
         }
     }
 
@@ -129,9 +132,13 @@ public class ParkingService {
         System.out.println("History for plate " + plate + ":");
         for (ParkingSession s : sessions) {
             String start = s.formatStartDateTime();
-            int dur      = s.getDurationHours();
-            String fee   = (s.getFeeEuros() == null ? "[not exited]" : s.getFeeEuros() + "€");
-            System.out.printf("  Start=%s, Duration=%dh, Fee=%s%n", start, dur, fee);
+            if (s.isClosed()) {
+                int dur      = s.getDurationHours();
+                String fee   = (s.getFeeEuros() == null ? "[not exited]" : s.getFeeEuros() + "€");
+                System.out.printf("  Plate=%s, Start=%s, Duration=%dh, Fee=%s%n", plate, start, dur, fee);
+            } else {
+                System.out.printf("  Plate=%s, Start=%s, [still parked]%n", plate, start);
+            }
         }
     }
 
@@ -165,7 +172,7 @@ public class ParkingService {
 
 
     /*
-     * Some helper methods, should i put these in a seperate utility class?
+     * Some helper methods
      */
     private String promptForPlate() {
         Scanner sc = new Scanner(System.in);
@@ -190,7 +197,7 @@ public class ParkingService {
     private boolean isVehicleAlreadyParked(String plate) {
         List<ParkingSession> sessions = repo.getAll("session_vehicle_" + plate);
         return sessions.stream()
-            .anyMatch(s -> s.getExitDateTime() == null);
+            .anyMatch(s -> s.isClosed() == false);
     }
  
     /*
@@ -214,7 +221,7 @@ public class ParkingService {
      * If allocation succeeds, create and “start” a ParkingSession:
      * Returns true if parked successfully; false if no spot could be found.
      */
-    private boolean allocateAndStartSession(Vehicle vehicle, int duration) {
+    private boolean allocateAndStartSession(Vehicle vehicle) {
         boolean isElectric = (vehicle.getFuelType() == FuelType.ELECTRIC);
         List<ParkingSpot> allocated = parkingLot.allocateSpots(vehicle.getSize(), isElectric);
         if (allocated.isEmpty()) {
@@ -225,8 +232,7 @@ public class ParkingService {
                 vehicle,
                 vehicle.getDriver(),
                 allocated,
-                LocalDateTime.now(),
-                duration
+                LocalDateTime.now()
         );
         parkingLot.markOccupied(allocated, session);
 

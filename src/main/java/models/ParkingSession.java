@@ -4,107 +4,65 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/*
- * Modelopoiei to lifecycle enos vehicle apo otan eisagete se ena parking spot mexri na kanei exit
- */
 public class ParkingSession {
     private final Vehicle vehicle;
     private final Driver driver;
-    private final List<ParkingSpot> spots;   // 1 h 2 theseis
+    private final List<ParkingSpot> spots;
     private final LocalDateTime startDateTime;
-    private final int durationHours;         // 1–24
-    private Integer feeEuros;
-    private LocalDateTime exitDateTime;      
 
-    public ParkingSession(Vehicle vehicle, Driver driver,
-                          List<ParkingSpot> spots,
-                          LocalDateTime startDateTime,
-                          int durationHours) {
+    private Integer durationHours; // Set only on exit
+    private Integer feeEuros;
+    private boolean closed = false;
+
+    public ParkingSession(Vehicle vehicle, Driver driver, List<ParkingSpot> spots, LocalDateTime startDateTime) {
         if (vehicle == null || driver == null || spots == null || startDateTime == null) {
             throw new IllegalArgumentException("Arguments cannot be null");
-        }
-        if (durationHours < 1 || durationHours > 24) {
-            throw new IllegalArgumentException("Duration must be between 1 and 24 hours");
         }
         this.vehicle = vehicle;
         this.driver = driver;
         this.spots = spots;
         this.startDateTime = startDateTime;
-        this.durationHours = durationHours;
-        this.feeEuros = null;
-        this.exitDateTime = null;
     }
 
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
+    public Vehicle getVehicle() { return vehicle; }
+    public Driver getDriver() { return driver; }
+    public List<ParkingSpot> getSpots() { return spots; }
+    public LocalDateTime getStartDateTime() { return startDateTime; }
+    public Integer getDurationHours() { return durationHours; }
+    public Integer getFeeEuros() { return feeEuros; }
+    public boolean isClosed() { return closed; }
 
-    public Driver getDriver() {
-        return driver;
-    }
+    public void closeSession(int actualHours) {
+        if (closed) throw new IllegalStateException("Session already closed");
+        if (actualHours < 1 || actualHours > 24)
+            throw new IllegalArgumentException("Invalid duration: must be 1-24");
 
-    public List<ParkingSpot> getSpots() {
-        return spots;
-    }
+        this.durationHours = actualHours;
+        this.closed = true;
 
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
-    }
-
-    public int getDurationHours() {
-        return durationHours;
-    }
-
-    public LocalDateTime getExitDateTime() {
-        return exitDateTime;
-    }
-
-    public Integer getFeeEuros() {
-        return feeEuros;
-    }
-
-    /*
-     * Called at the end
-     */
-    public void closeSession() {
-        if (exitDateTime != null) {
-            throw new IllegalStateException("Session already closed");
-        }
-        this.exitDateTime = LocalDateTime.now();
-        if (durationHours <= 3) {
-            feeEuros = 5;
-        } else if (durationHours <= 8) {
-            feeEuros = 8;
-        } else if (durationHours <= 23) {
-            feeEuros = 12;
-        } else {
-            feeEuros = 15;
-        }
+        if (actualHours <= 3) feeEuros = 5;
+        else if (actualHours <= 8) feeEuros = 8;
+        else if (actualHours <= 23) feeEuros = 12;
+        else feeEuros = 15;
     }
 
     public String formatStartDateTime() {
         return startDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm"));
     }
 
-    /*
-     * php-stiko approach 
-     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Session[vehicle=")
-          .append(vehicle.getPlate())
-          .append(", driver=")
-          .append(driver.getPhone())
+        StringBuilder sb = new StringBuilder("Session[vehicle=");
+        sb.append(vehicle.getPlate())
+          .append(", driver=").append(driver.getPhone())
           .append(", spots=");
         spots.forEach(s -> sb.append(s.getNumber()).append(" "));
-        sb.append(", start=")
-          .append(formatStartDateTime())
-          .append(", duration=")
-          .append(durationHours)
-          .append("h");
-        if (feeEuros != null) {
+        sb.append(", start=").append(formatStartDateTime());
+        if (closed) {
+            sb.append(", duration=").append(durationHours).append("h");
             sb.append(", fee=").append(feeEuros).append("€");
+        } else {
+            sb.append(", [still parked]");
         }
         sb.append("]");
         return sb.toString();

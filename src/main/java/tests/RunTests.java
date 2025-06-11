@@ -26,7 +26,7 @@ public class RunTests {
                 // Should not happen for first 80
                 return false;
             }
-            ParkingSession session = new ParkingSession(car, dummyDriver, spots, java.time.LocalDateTime.now(), 1);
+            ParkingSession session = new ParkingSession(car, dummyDriver, spots, java.time.LocalDateTime.now());
             lot.markOccupied(spots, session);
         }
         Vehicle car81 = new Car("CAR81", FuelType.DIESEL, dummyDriver);
@@ -48,9 +48,9 @@ public class RunTests {
         List<ParkingSpot> s4 = lot.allocateSpots(1, false); // should be spot 4
 
         // free spot 3 to leave [1=used, 2=used, 3=free, 4=used]
-        lot.markOccupied(s1, new ParkingSession(car1, d, s1, java.time.LocalDateTime.now(), 1));
-        lot.markOccupied(s2, new ParkingSession(car1, d, s2, java.time.LocalDateTime.now(), 1));
-        lot.markOccupied(s4, new ParkingSession(car2, d, s4, java.time.LocalDateTime.now(), 1));
+        lot.markOccupied(s1, new ParkingSession(car1, d, s1, java.time.LocalDateTime.now()));
+        lot.markOccupied(s2, new ParkingSession(car1, d, s2, java.time.LocalDateTime.now()));
+        lot.markOccupied(s4, new ParkingSession(car2, d, s4, java.time.LocalDateTime.now()));
 
         Vehicle truck = new Truck("T1", FuelType.DIESEL, d, 6.0, TruckUsageType.FOOD_TRANSPORT);
         List<ParkingSpot> truckSpots = lot.allocateSpots(2, false);

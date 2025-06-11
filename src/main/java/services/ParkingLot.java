@@ -60,12 +60,6 @@ public class ParkingLot {
     /**
      * Attempts to allocate `sizeNeeded` consecutive spots for a given vehicle, given its fuel type.
      * Returns a list of `ParkingSpot` if successful; otherwise returns an empty list.
-     *
-     * RULES:
-     *  1. A non-electric vehicle can only use NORMAL spots
-     *  2. An electric vehicle can use either NORMAL or ELECTRIC, preferring ELECTRIC first.
-     *  3. Cars/Motorcycles (size=1) only need 1 free spot.
-     *  4. Trucks size=2) need 2 consecutive free NORMAL spots (electric trucks still must use normal)
      */
     public List<ParkingSpot> allocateSpots(int sizeNeeded, boolean isElectric) {
         List<ParkingSpot> allocated = new ArrayList<>();
