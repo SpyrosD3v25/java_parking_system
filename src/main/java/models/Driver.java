@@ -9,7 +9,7 @@ public class Driver {
         if (firstName == null || lastName == null || phone == null) {
             throw new IllegalArgumentException("Driver fields cannot be null");
         }
-        if (!phone.matches("\\d+")) {
+        if (!phone.matches("\\d+")) { // Check if the phone contains only digits
             throw new IllegalArgumentException("Phone must contain only digits");
         }
         this.firstName = firstName;

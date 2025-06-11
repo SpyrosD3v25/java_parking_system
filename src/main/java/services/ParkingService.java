@@ -12,12 +12,12 @@ import java.util.*;
 
 /**
  * ParkingService handles:
- *   • parkVehicleInteractive
- *   • exitVehicleInteractive
- *   • searchByDriver
- *   • searchByVehicle
- *   • printSpotReport
- *   • saveStateToFile
+ *   parkVehicleInteractive
+ *   exitVehicleInteractive
+ *   searchByDriver
+ *   searchByVehicle
+ *   printSpotReport
+ *   saveStateToFile
  */
 public class ParkingService {
     private final ParkingLot parkingLot;

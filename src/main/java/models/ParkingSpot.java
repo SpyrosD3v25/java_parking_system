@@ -1,7 +1,11 @@
 package models;
 
 import java.util.Optional;
-
+/*
+ * This class represents a single parking spot in the parking lot.
+ * Each spot has a unique number, a type (NORMAL or ELECTRIC), and can be occupied or free.
+ * It keeps track of whether it is occupied and, if so, the current parking session using it.
+ */
 public class ParkingSpot {
     public enum SpotType { NORMAL, ELECTRIC }
 

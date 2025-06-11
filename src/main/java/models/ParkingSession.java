@@ -3,7 +3,12 @@ package models;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+/*
+ * This class represents a parking session: a single event where a vehicle is parked
+ * in specific spots by a driver, starting at a certain time and for a certain duration.
+ * It stores information about the vehicle, the driver, the parking spots, the start time,
+ * whether the session is closed, and the fee to be paid.
+ */
 public class ParkingSession {
     private final Vehicle vehicle;
     private final Driver driver;
